@@ -1,20 +1,78 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const img = new Image();
-let lastUpdateTime = Date.now();
 img.src = "./media/flappy-bird-set.png";
+const buttons = document.querySelectorAll("button");
+let gravitySetup = document.getElementById("gravitySetup");
+let speedSetup = document.getElementById("speedSetup");
+let jumpSetup = document.getElementById("jumpSetup");
+let pipeSetup = document.getElementById("pipeSetup");
+
+const setups = document.querySelector(".setups");
+
+const minSpeed = 1;
+const maxSpeed = 5;
+const minGravity = 0.15;
+const maxGravity = 0.5;
+const gravityIncrement = 0.1;
+const minJump = -10;
+const maxJump = -5;
+const minGape = 250;
+const maxGape = 500;
+const gapeincrement = 10;
+
+buttons.forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    console.log(e.target.id);
+    if (e.target.id == "more-speed" && speed < maxSpeed) {
+      speed++;
+      speedSetup.innerText = speed + "m/s";
+    } else if (e.target.id == "less-speed" && speed > minSpeed) {
+      speed--;
+      speedSetup.innerText = speed + "m/s";
+    }
+    if (e.target.id == "more-gravity" && gravity < maxGravity) {
+      gravity += gravityIncrement;
+      gravitySetup.innerText = parseFloat(gravity.toFixed(1)) + "g";
+      console.log(gravity);
+    } else if (e.target.id == "less-gravity" && gravity > minGravity) {
+      gravity -= gravityIncrement;
+      gravitySetup.innerText = parseFloat(gravity.toFixed(1)) + "g";
+    }
+    if (e.target.id == "more-jump" && jump > minJump) {
+      jump--;
+      jumpSetup.innerText = -jump + "m";
+      console.log(jump);
+    } else if (e.target.id == "less-jump" && jump < maxJump) {
+      jump++;
+      jumpSetup.innerText = -jump + "m";
+      console.log(jump);
+    }
+    if (e.target.id == "more-gape" && pipeGap < maxGape) {
+      pipeGap += gapeincrement;
+      pipeSetup.innerText = pipeGap / 10 + "px";
+    } else if (e.target.id == "less-gape" && pipeGap > minGape) {
+      pipeGap -= gapeincrement;
+      pipeSetup.innerText = pipeGap / 10 + "px";
+    }
+  });
+});
 
 //general settings
 let gamePlaying = false;
-const gravity = 0.2;
-const speed = 500;
+let gravity = 0.2;
+gravitySetup.innerText = gravity + "g";
+let speed = 2;
+speedSetup.innerText = speed + "m/s";
 const size = [51, 36];
-const jump = -8;
+let jump = -8;
+jumpSetup.innerText = -jump + "m";
 const cTenth = canvas.width / 10;
 
 //pipe settings
 const pipeWidth = 78;
-const pipeGap = 350;
+let pipeGap = 300;
+pipeSetup.innerText = pipeGap / 10 + "m";
 const pipeLoc = () =>
   Math.random() * (canvas.height - (pipeGap + pipeWidth) - pipeWidth) +
   pipeWidth;
@@ -37,9 +95,7 @@ const setup = () => {
 };
 
 const render = () => {
-  const deltaTime = (Date.now() - lastUpdateTime) / 1000;
-  lastUpdateTime = Date.now();
-  index += deltaTime;
+  index++;
 
   //background
   ctx.drawImage(
@@ -48,7 +104,7 @@ const render = () => {
     0,
     canvas.width,
     canvas.height,
-    -((index * ((speed * deltaTime) / 2)) % canvas.width),
+    -((index * (speed / 2)) % canvas.width) + canvas.width,
     0,
     canvas.width,
     canvas.height
@@ -60,7 +116,7 @@ const render = () => {
     0,
     canvas.width,
     canvas.height,
-    canvas.width - ((index * ((speed * deltaTime) / 2)) % canvas.width),
+    -((index * (speed / 2)) % canvas.width),
     0,
     canvas.width,
     canvas.height
@@ -99,7 +155,7 @@ const render = () => {
   //pipe display
   if (gamePlaying) {
     pipes.map((pipe) => {
-      pipe[0] -= speed * deltaTime;
+      pipe[0] -= speed;
       //top pipe
       ctx.drawImage(
         img,
@@ -151,11 +207,16 @@ const render = () => {
 
   document.getElementById("bestScore").innerHTML = `Meilleur :${bestScore}`;
   document.getElementById("currentScore").innerHTML = `Actuel :${currentScore}`;
+  if (gamePlaying) {
+    setups.style.visibility = "hidden";
+  } else {
+    setups.style.visibility = "visible";
+  }
   window.requestAnimationFrame(render);
 };
 
 img.onload = render;
-document.addEventListener("click", () => (gamePlaying = true));
+canvas.addEventListener("click", () => (gamePlaying = true));
 window.onclick = () => (flight = jump);
 
 setup();
