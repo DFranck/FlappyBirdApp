@@ -1,12 +1,13 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const img = new Image();
+let lastUpdateTime = Date.now();
 img.src = "./media/flappy-bird-set.png";
 
 //general settings
 let gamePlaying = false;
 const gravity = 0.2;
-const speed = 2.5;
+const speed = 500;
 const size = [51, 36];
 const jump = -8;
 const cTenth = canvas.width / 10;
@@ -36,7 +37,9 @@ const setup = () => {
 };
 
 const render = () => {
-  index++;
+  const deltaTime = (Date.now() - lastUpdateTime) / 1000;
+  lastUpdateTime = Date.now();
+  index += deltaTime;
 
   //background
   ctx.drawImage(
@@ -45,7 +48,7 @@ const render = () => {
     0,
     canvas.width,
     canvas.height,
-    -((index * (speed / 2)) % canvas.width) + canvas.width,
+    -((index * ((speed * deltaTime) / 2)) % canvas.width),
     0,
     canvas.width,
     canvas.height
@@ -57,7 +60,7 @@ const render = () => {
     0,
     canvas.width,
     canvas.height,
-    -((index * (speed / 2)) % canvas.width),
+    canvas.width - ((index * ((speed * deltaTime) / 2)) % canvas.width),
     0,
     canvas.width,
     canvas.height
@@ -96,7 +99,7 @@ const render = () => {
   //pipe display
   if (gamePlaying) {
     pipes.map((pipe) => {
-      pipe[0] -= speed;
+      pipe[0] -= speed * deltaTime;
       //top pipe
       ctx.drawImage(
         img,
