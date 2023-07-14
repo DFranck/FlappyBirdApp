@@ -24,13 +24,10 @@ h1 {
 }
 
 .setups {
+  width: 431px;
   position: absolute;
   left: 50%;
   transform: translate(-50%);
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.setup {
-  width: 190px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
